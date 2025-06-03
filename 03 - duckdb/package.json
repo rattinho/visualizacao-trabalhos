@@ -1,0 +1,18 @@
+{
+  "name": "duckdb-vis",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.2.6"
+  },
+  "dependencies": {
+    "@duckdb/duckdb-wasm": "^1.29.0",
+    "@duckdb/node-api": "^1.3.0-alpha.21"
+  }
+}
