@@ -1,54 +1,16 @@
-import D3jsDados from './dash';
-import './style.css'
-import { Taxi, type ITaxi } from './taxi';
+import Dash1 from './components/Dash1';
+import Dash2 from './components/Dash2';
+import Dash3 from './components/Dash3';
+import './style.css';
+import { Taxi } from './taxi';
 
-let app = new D3jsDados(600, 400);
-
-
-async function run() {
+document.addEventListener('DOMContentLoaded', async () => {
   const taxi = new Taxi();
-  
-      await taxi.init();
-      await taxi.loadTaxi();
-  
-      const sql = `
-SELECT
-  EXTRACT(DOW FROM lpep_pickup_datetime) AS dia_semana,
-  SUM(tip_amount) AS total_tip_amount
-FROM
-  taxi_2023
-GROUP BY
-  dia_semana
-ORDER BY
-  dia_semana;
-
-      `;
-  
-
-  
-  const data = await taxi.query(sql);
-
-  console.log(data)
-  data.forEach((row: any) => {
-    row.dia_semana = Number(row.dia_semana)
-  })
-  app.attScaleY(data, 'total_tip_amount')
-  app.attScaleX(data, 'dia_semana')
-
-  data.forEach((row: any, idx:number) => {
-    app.createSquare(row.total_tip_amount, idx);
-  })
-
-  app.attEixos()
-  
-  
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  run()
-})
-
-
-
-
-
+  await taxi.init();
+  await taxi.loadTaxi();
+  //await Promise.all([Dash1()]);
+  await Promise.all([Dash1(taxi), Dash2(taxi), Dash3(taxi)]);
+  //Dash2(), Dash3()]);
+  document.querySelector('#loading')?.setAttribute('data-active', 'false');
+  console.log('carregou');
+});
