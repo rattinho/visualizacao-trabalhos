@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="./src/style.css" />
+  <title>Exercicio 1!</title>
+</head>
+
+<body>
+  <div id="loading" data-active="true"
+    class="bg-white pointer-events-none data-[active='false']:opacity-0 transition-all duration-500 inset-0 fixed flex items-center justify-center">
+    <svg class="opacity-50 animate-spin size-16" stroke="currentColor" fill="currentColor" stroke-width="0"
+      viewBox="0 0 1024 1024" height="200px" width="200px" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M988 548c-19.9 0-36-16.1-36-36 0-59.4-11.6-117-34.6-171.3a440.45 440.45 0 0 0-94.3-139.9 437.71 437.71 0 0 0-139.9-94.3C629 83.6 571.4 72 512 72c-19.9 0-36-16.1-36-36s16.1-36 36-36c69.1 0 136.2 13.5 199.3 40.3C772.3 66 827 103 874 150c47 47 83.9 101.8 109.7 162.7 26.7 63.1 40.2 130.2 40.2 199.3.1 19.9-16 36-35.9 36z">
+      </path>
+    </svg>
+  </div>
+  <div id="app"
+    class="w-full min-h-screen bg-gradient-to-b from-blue-900 to-blue-950 text-white flex flex-col items-center justify-center gap-32 py-32">
+    <!-- Gráfico -->
+    <div class="mx-auto container flex items-center gap-10">
+      <div class="flex flex-col items-start gap-2 flex-1 drop-shadow-md">
+        <h3 class="font-bold text-3xl">Existe alguma relação entre o valor da gorjeta (tip_amout) e o horário das corridas?</h3>
+        <!--<h2 class="font-bold text-2xl">Gorjeta Média por Corrida por horário</h2>-->
+        <p><strong>Objetivo:</strong> Analisar o padrão de gorjeta dos táxis em diferentes horários.</p>
+        <p><strong>Eixo X:</strong> Horário</p>
+        <p><strong>Eixo Y:</strong> Gorjeta média por corrida (tip_amount)</p>
+        <p><strong>Interpretação esperada:</strong> Existe uma variação, mesmo que na casa dos centavos, no valor da gorjeta baseado no horário do dia.</p>
+          <div id="view3" class="text-black"></div>
+      </div>
+    </div>
+
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
