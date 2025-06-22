@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <title>Visualização Dinâmica - Brasileirão</title>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script type="module" src="js/main.js"></script>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+            
+        <ul>
+        <li><a class="active" href="">Geral</a></li>
+        <li><a href="individual.html">Individual</a></li>
+        <li><a href="confrontos.html">Confrontos Diretos</a></li>
+        <li style="float:right"><a class="active"  href="sobre.html">Sobre</a></li>
+        </ul>
+
+        <h1>Brasileirão - Desempenho Geral</h1>
+
+        <label for="visType">Escolha o tipo de visualização:</label>
+        <select id="visType">
+        <option value="bar">Gráfico de Barras</option>
+        <option value="line">Gráfico de Linhas</option>
+        <option value="pie">Gráfico de Pizza</option>
+        <option value="table">Tabela</option>
+        </select>
+
+        <div id="chart"></div>
+
+    </body>
+</html>
