@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectGrafico = document.getElementById('visType');
   const chartDiv = document.getElementById('chart');
   const selectTime = document.getElementById('time-select');
+  const btnPreencherAnosFora = document.getElementById('preencherBtn');
 
   let data = [];
   let times = [];
@@ -38,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
   async function atualizarData(){
       const response = await fetch('/api/individual?time='+selectTime.value);
       data = await response.json();
+      console.log(btnPreencherAnosFora.checked);
+      if(btnPreencherAnosFora.checked == true){
+        data = preencherTemporadasFaltantes(data);
+      }
       renderSelectedChart();
   }
 
@@ -49,14 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (type === 'table') renderTableView(chartDiv, data);
   }
 
-  /*function preencherTemporadasFaltantes(lista) {
+  function preencherTemporadasFaltantes(lista) {
       if (lista.length === 0) return [];
 
-      // Extrair todas as temporadas já existentes
       const temporadasExistentes = lista.map(item => item.temporada);
 
-      const temporadaMin = Math.min(...temporadasExistentes);
-      const temporadaMax = Math.max(...temporadasExistentes);
+      const temporadaMin = 2003;
+      const temporadaMax = 2024;
 
       const listaPreenchida = [];
 
@@ -65,8 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (existente) {
           listaPreenchida.push(existente);
         } else {
-          // Cria um objeto "zerado" para a temporada ausente
           listaPreenchida.push({
+            time_nome: '--',
             temporada: ano,
             jogos: 0,
             total_pontos: 0,
@@ -76,16 +80,15 @@ document.addEventListener('DOMContentLoaded', () => {
             gols_marcados: 0,
             gols_sofridos: 0,
             saldo_gols: 0,
-            // Adicione aqui quaisquer outros campos que existam nos objetos originais
           });
         }
       }
-
       return listaPreenchida;
-  }*/
+  }
 
   selectGrafico.addEventListener('change', renderSelectedChart);
   selectTime.addEventListener('change', atualizarData);
+  btnPreencherAnosFora.addEventListener('change', atualizarData);
 
   fetchData();
 });

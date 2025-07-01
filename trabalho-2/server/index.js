@@ -77,7 +77,8 @@ app.get('/api/individual', (req, res) => {
             CASE WHEN vencedor = '-' THEN 1 ELSE 0 END AS empates,
             CASE WHEN vencedor = visitante THEN 1 ELSE 0 END AS derrotas,
             mandante_placar AS gols_pro,
-            visitante_placar AS gols_contra
+            visitante_placar AS gols_contra,
+            mandante_Estado AS estado
         FROM jogos_com_temporada
         WHERE mandante = '${time}'
     ),
@@ -93,7 +94,8 @@ app.get('/api/individual', (req, res) => {
             CASE WHEN vencedor = '-' THEN 1 ELSE 0 END AS empates,
             CASE WHEN vencedor = mandante THEN 1 ELSE 0 END AS derrotas,
             visitante_placar AS gols_pro,
-            mandante_placar AS gols_contra
+            mandante_placar AS gols_contra,
+            visitante_Estado AS estado
         FROM jogos_com_temporada
         WHERE visitante = '${time}'
     ),
@@ -112,7 +114,8 @@ app.get('/api/individual', (req, res) => {
         SUM(derrotas) AS derrotas,
         SUM(gols_pro) AS gols_marcados,
         SUM(gols_contra) AS gols_sofridos,
-        SUM(gols_pro - gols_contra) AS saldo_gols
+        SUM(gols_pro - gols_contra) AS saldo_gols,
+        MAX(estado) AS estado
     FROM estatisticas_gerais
     GROUP BY temporada_ano_inicio, time_nome
     ORDER BY temporada_ano_inicio, total_pontos DESC;`;
@@ -197,7 +200,8 @@ app.get('/api/tabela', (req, res) => {
             SUM(derrotas) AS derrotas,
             SUM(gols_pro) AS gols_pro,
             SUM(gols_contra) AS gols_contra,
-            SUM(gols_pro) - SUM(gols_contra) AS saldo_gols
+            SUM(gols_pro) - SUM(gols_contra) AS saldo_gols,
+            MAX(estado) AS estado
         FROM (
             SELECT
                 mandante AS time,
@@ -211,7 +215,8 @@ app.get('/api/tabela', (req, res) => {
                 CASE WHEN CAST(mandante_placar AS INTEGER) = CAST(visitante_placar AS INTEGER) THEN 1 ELSE 0 END AS empates,
                 CASE WHEN CAST(mandante_placar AS INTEGER) < CAST(visitante_placar AS INTEGER) THEN 1 ELSE 0 END AS derrotas,
                 CAST(mandante_placar AS INTEGER) AS gols_pro,
-                CAST(visitante_placar AS INTEGER) AS gols_contra
+                CAST(visitante_placar AS INTEGER) AS gols_contra,
+                mandante_Estado AS estado
             FROM brasileirao
             WHERE mandante_placar IS NOT NULL AND visitante_placar IS NOT NULL
 
@@ -229,7 +234,8 @@ app.get('/api/tabela', (req, res) => {
                 CASE WHEN CAST(visitante_placar AS INTEGER) = CAST(mandante_placar AS INTEGER) THEN 1 ELSE 0 END AS empates,
                 CASE WHEN CAST(visitante_placar AS INTEGER) < CAST(mandante_placar AS INTEGER) THEN 1 ELSE 0 END AS derrotas,
                 CAST(visitante_placar AS INTEGER) AS gols_pro,
-                CAST(mandante_placar AS INTEGER) AS gols_contra
+                CAST(mandante_placar AS INTEGER) AS gols_contra,
+                visitante_Estado AS estado
             FROM brasileirao
             WHERE mandante_placar IS NOT NULL AND visitante_placar IS NOT NULL
         ) AS resultados
