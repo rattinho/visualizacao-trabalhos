@@ -136,33 +136,6 @@ app.get('/api/individual', (req, res) => {
 
 });
 
-app.get('/api/placares', (req, res) => {
-    if (!dbInstance) {
-        return res.status(500).json({ error: 'Database ainda não carregada.' });
-    }
-
-    const query = `
-        SELECT 
-            rodada,
-            mandante,
-            mandante_placar,
-            visitante,
-            visitante_placar
-        FROM brasileirao
-        WHERE mandante_placar IS NOT NULL AND visitante_placar IS NOT NULL
-        LIMIT 20;
-    `;
-
-    dbInstance.all(query, (err, rows) => {
-        if (err) {
-            console.error('Erro ao consultar o banco:', err);
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json(rows);
-        }
-    });
-});
-
 app.get('/api/times', (req, res) => {
     if (!dbInstance) {
         return res.status(500).json({ error: 'Database ainda não carregada.' });
@@ -181,6 +154,68 @@ app.get('/api/times', (req, res) => {
             res.status(500).json({ error: err.message });
         } else {
             res.json(rows);
+        }
+    });
+});
+
+app.get('/api/confrontos', (req, res) => {
+    if (!dbInstance) {
+        return res.status(500).json({ error: 'Database ainda não carregada.' });
+    }
+    const {time1, time2} = req.query;
+
+    //buscar o histórico consolidado de confrontos
+    const query2 = 
+        `WITH time1Mandante AS (
+            SELECT
+                mandante as time1,
+                visitante as time2,
+                mandante_placar as placarTime1,
+                visitante_placar as placarTime2,
+                CASE WHEN CAST(mandante_placar AS INTEGER) > CAST(visitante_placar AS INTEGER) THEN 1 ELSE 0 END AS vitoriasTime1,
+                CASE WHEN CAST(mandante_placar AS INTEGER) = CAST(visitante_placar AS INTEGER) THEN 1 ELSE 0 END AS empates,
+                CASE WHEN CAST(mandante_placar AS INTEGER) < CAST(visitante_placar AS INTEGER) THEN 1 ELSE 0 END AS vitoriasTime2
+            FROM brasileirao
+            WHERE mandante = '${time1}' AND visitante = '${time2}'),
+        time2Mandante AS(
+            SELECT
+                visitante as time1,
+                mandante as time2,
+                visitante_placar as placarTime1,
+                mandante_placar as placarTime2,
+                CASE WHEN CAST(mandante_placar AS INTEGER) < CAST(visitante_placar AS INTEGER) THEN 1 ELSE 0 END AS vitoriasTime1,
+                CASE WHEN CAST(mandante_placar AS INTEGER) = CAST(visitante_placar AS INTEGER) THEN 1 ELSE 0 END AS empates,
+                CASE WHEN CAST(mandante_placar AS INTEGER) > CAST(visitante_placar AS INTEGER) THEN 1 ELSE 0 END AS vitoriasTime2
+            FROM brasileirao
+            WHERE mandante = '${time2}' AND visitante = '${time1}'),
+        geral AS(
+            SELECT * FROM time1Mandante
+            UNION ALL
+            SELECT * FROM time2Mandante
+        )
+        SELECT
+            time1,
+            time2,
+            SUM(placarTime1) as golsTime1,
+            SUM(placarTime2) as golsTime2,
+            SUM(vitoriasTime1) as vitoriasTime1,
+            SUM(empates)as empates,
+            SUM(vitoriasTime2) as vitoriasTime2
+        FROM
+            geral
+        GROUP BY time1, time2`;
+    dbInstance.all(query2, (err, rows) => {
+        if (err) {
+            console.error('Erro ao consultar o banco:', err);
+            res.status(500).json({ error: err.message });
+        } else {
+            try {
+                const safeRows = convertBigIntToString(rows);
+                res.json(safeRows);
+            } catch (serializationError) {
+                console.error('Erro ao serializar resposta:', serializationError);
+                res.status(500).json({ error: 'Falha ao serializar a resposta.' });
+            }
         }
     });
 });

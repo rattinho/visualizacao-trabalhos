@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Visualização Dinâmica - Brasileirão</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script type="module" src="js/confrontos.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <ul>
+    <li><a href="index.html">Geral</a></li>
+    <li><a href="individual.html">Individual</a></li>
+    <li><a class="active" href="confrontos.html">Confrontos Diretos</a></li>
+    <li style="float:right"><a class="active" href="sobre.html">Sobre</a></li>
+  </ul>
+
+  <h1>Histórico de confrontos diretos</h1>
+
+  <label for="time1-select">Escolha o Clube 1:</label>
+  <select id="time1-select">
+  </select>
+  <label for="time2-select">Escolha o Clube 2:</label>
+  <select id="time2-select">
+  </select>
+
+  <button id="attbtn">Pesquisar</button>
+
+  <br><br>
+
+  <label for="visType">Escolha o tipo de visualização:</label>
+  <select id="visType">
+    <option value="bar">Gráfico de Barras</option>
+    <option value="line">Gráfico de Linhas</option>
+    <option value="pie">Gráfico de Pizza</option>
+    <option value="table">Tabela</option>
+  </select>
+
+
+
+  <div id="chart"></div>
+
+</body>
+
+</html>
