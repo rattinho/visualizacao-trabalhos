@@ -1,38 +1,78 @@
 export function renderLineChart(container, data, config = {}) {
-    container.innerHTML = '';
+  container.innerHTML = "";
 
-    const svg = d3.select(container).append('svg').attr('width', 900).attr('height', 500);
-    const margin = { top: 20, right: 20, bottom: 100, left: 60 };
-    const width = 900 - margin.left - margin.right;
-    const height = 500 - margin.top - margin.bottom;
+  function clamp(num, min, max) {
+    return Math.min(Math.max(num, min), max);
+  }
 
-    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+  const svgWidth = clamp(window.innerWidth / 2.5, 500, window.innerWidth / 2.5);
+  const svgHeight = svgWidth * 0.6;
 
-    const x = d3.scalePoint()
-        .domain(data.map(d => d[config.xField || 'time']))
-        .range([0, width]);
+  const svg = d3.select(container).append("svg").attr("width", svgWidth).attr("height", svgHeight);
+  const margin = {top: 20, right: 20, bottom: 100, left: 60};
+  const width = svgWidth - margin.left - margin.right;
+  const height = svgHeight - margin.top - margin.bottom;
 
-    const y = d3.scaleLinear()
-        .domain([0, d3.max(data, d => +d[config.yField || 'pontos'])])
-        .range([height, 0]);
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const line = d3.line()
-        .x(d => x(d[config.xField || 'time']))
-        .y(d => y(+d[config.yField || 'pontos']));
+  const xField = config.xField || "time";
+  const yField = config.yField || "pontos";
 
-    g.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x))
-        .selectAll('text')
-        .attr('transform', 'rotate(-45)')
-        .style('text-anchor', 'end');
+  const x = d3
+    .scalePoint()
+    .domain(data.map((d) => d[xField]))
+    .range([0, width]);
 
-    g.append('g').call(d3.axisLeft(y));
+  const y = d3
+    .scaleLinear()
+    .domain([0, d3.max(data, (d) => +d[yField])])
+    .range([height, 0]);
 
-    g.append('path')
-        .datum(data)
-        .attr('fill', 'none')
-        .attr('stroke', config.color || 'green')
-        .attr('stroke-width', 2)
-        .attr('d', line);
+  const line = d3
+    .line()
+    .x((d) => x(d[xField]))
+    .y((d) => y(+d[yField]));
+
+  g.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x)).selectAll("text").attr("transform", "rotate(-45)").style("text-anchor", "end");
+
+  g.append("g").call(d3.axisLeft(y));
+
+  g.append("path")
+    .datum(data)
+    .attr("fill", "none")
+    .attr("stroke", config.color || "green")
+    .attr("stroke-width", 2)
+    .attr("d", line);
+
+  // Tooltip div
+  const tooltip = d3
+    .select(container)
+    .append("div")
+    .style("position", "absolute")
+    .style("background", "#fff")
+    .style("padding", "6px 10px")
+    .style("border", "1px solid #ccc")
+    .style("border-radius", "4px")
+    .style("pointer-events", "none")
+    .style("font-size", "12px")
+    .style("opacity", 0);
+
+  // Círculos interativos nos pontos
+  g.selectAll("circle")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("cx", (d) => x(d[xField]))
+    .attr("cy", (d) => y(+d[yField]))
+    .attr("r", 4)
+    .attr("fill", config.color || "green")
+    .on("mouseover", (event, d) => {
+      tooltip.style("opacity", 1).html(`<strong>${xField}:</strong> ${d[xField]}<br/><strong>${yField}:</strong> ${d[yField]}`);
+    })
+    .on("mousemove", (event) => {
+      tooltip.style("left", event.pageX + 10 + "px").style("top", event.pageY - 28 + "px");
+    })
+    .on("mouseout", () => {
+      tooltip.style("opacity", 0);
+    });
 }

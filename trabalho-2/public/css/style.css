@@ -1,11 +1,9 @@
 body {
-    font-family: Arial, sans-serif;
+  font-family: Arial, sans-serif;
 }
-#chart {
-    margin-top: 30px;
-}
+
 svg {
-    max-width: 900px;
+  max-width: 900px;
 }
 
 /*header*/
@@ -35,5 +33,5 @@ li a:hover {
 }
 
 .active {
-  background-color: #04AA6D;
+  background-color: #04aa6d;
 }

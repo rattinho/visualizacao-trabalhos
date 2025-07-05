@@ -4,13 +4,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-     "dev": "node server/index.js"
+    "dev": "node server/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@tailwindcss/cli": "^4.1.11",
     "@tailwindcss/vite": "^4.1.8",
     "@types/d3": "^7.4.3",
     "d3": "^7.9.0",
@@ -18,6 +19,6 @@
     "express": "^5.1.0",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.12",
-    "tailwindcss": "^4.1.8"
+    "tailwindcss": "^4.1.11"
   }
 }

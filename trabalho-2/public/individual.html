@@ -1,36 +1,48 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="UTF-8">
-<title>Visualização Dinâmica - Brasileirão</title>
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script type="module" src="js/individual.js"></script>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <title>Visualização Dinâmica - Brasileirão</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script type="module" src="js/individual.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/tailwindcss">
+    @theme {
+            --color-green: #04aa6d;
+        }
+    </style>
 </head>
+
 <body>
-    <ul>
-        <li><a href="index.html">Geral</a></li>
-        <li><a class="active" href="individual.html">Individual</a></li>
-        <li><a href="confrontos.html">Confrontos Diretos</a></li>
-        <li style="float:right"><a class="active" href="sobre.html">Sobre</a></li>
+  <div class="w-full h-screen ">
+    <ul class="flex align-center justify-start">
+
+      <li><a href="index.html">Geral</a></li>
+      <li><a class="active" href="individual.html">Individual</a></li>
+      <li><a href="confrontos.html">Confrontos Diretos</a></li>
+      <li class="mx-auto flex items-center justify-center gap-2">
+        <h1 class="text-2xl font-bold text-green">Histórico individual</h1>
+      </li>
+      <li style="float:right" class="ml-auto"><a class="active" href="sobre.html">Sobre</a></li>
+
     </ul>
 
-<h1>Histórico individual</h1>
-
-<label for="time-select">Escolha o Clube:</label>
-<select id="time-select">
-</select>
-
-<label for="visType">Escolha o tipo de visualização:</label>
-<select id="visType">
-  <option value="bar">Gráfico de Barras</option>
-  <option value="line">Gráfico de Linhas</option>
-  <option value="pie">Gráfico de Pizza</option>
-  <option value="table">Tabela</option>
-</select>
-<input type="checkbox" id="preencherBtn"/><label for="preencherBtn">Mostrar anos ausente da série A</label>
-
-<div id="chart"></div>
-
+    <div class="w-11/12 mx-auto my-10">
+      <span class="font-bold text-green tracking-wider">Clube</span>
+      <select id="time-select" class="py-2 bg-green rounded-sm text-white drop-shadow-md w-32 !outline-none">
+      </select>
+      <input type="checkbox" id="preencherBtn" /><label class="" for="preencherBtn">Mostrar anos ausente da
+        série A</label>
+      <div class="flex flex-wrap gap-y-10 align-center justify-center">
+        <div id="chart" class="flex-1/2"></div>
+        <div id="chart2" class="flex-1/2"></div>
+        <div id="chart3" class="flex-1/2"></div>
+        <div id="chart4" class="flex-1/2 max-h-[450px] overflow-scroll overflow-y-hidden"></div>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>

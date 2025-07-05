@@ -1,94 +1,142 @@
-import { renderLineChart } from './charts/lineChart.js';
-import { renderBarChart } from './charts/barChart.js';
-import { renderPieChart } from './charts/pieChart.js';
-import { renderTableView } from './charts/tableView.js';
+import {renderLineChart} from "./charts/lineChart.js";
+import {renderBarChart} from "./charts/barChart.js";
+import {renderPieChart} from "./charts/pieChart.js";
+import {renderTableView} from "./charts/tableView.js";
 
-document.addEventListener('DOMContentLoaded', () => {
-  const selectGrafico = document.getElementById('visType');
-  const chartDiv = document.getElementById('chart');
-  const selectTime = document.getElementById('time-select');
-  const btnPreencherAnosFora = document.getElementById('preencherBtn');
-
-  let data = [];
-  let times = [];
-  let config = {
-    xField: 'temporada',
-    yField: 'total_pontos'
+document.addEventListener("DOMContentLoaded", () => {
+  const chartDivs = {
+    barChart: document.getElementById("chart"),
+    lineChart: document.getElementById("chart2"),
+    pieChart: document.getElementById("chart3"),
+    tableView: document.getElementById("chart4"),
   };
 
-  async function fetchData() {
+  const selectTime = document.getElementById("time-select");
+  const btnPreencherAnosFora = document.getElementById("preencherBtn");
+
+  let dataOriginal = [];
+  let filtrosAtivos = {
+    barChart: null,
+    lineChart: null,
+    pieChart: null,
+  };
+
+  let times = [];
+
+  const config = {
+    xField: "temporada",
+    yField: "total_pontos",
+  };
+
+  async function fetchTimes() {
     try {
-      const r = await fetch('/api/times');
+      const r = await fetch("/api/times");
       times = await r.json();
 
-
-      times.forEach(t => {
-        const option = document.createElement('option');
+      times.forEach((t) => {
+        const option = document.createElement("option");
         option.value = t.time;
         option.textContent = t.time;
         selectTime.appendChild(option);
       });
 
       await atualizarData();
-      
     } catch (err) {
-      console.error('Erro ao buscar dados:', err);
+      console.error("Erro ao buscar times:", err);
     }
   }
 
-  async function atualizarData(){
-      const response = await fetch('/api/individual?time='+selectTime.value);
-      data = await response.json();
-      console.log(btnPreencherAnosFora.checked);
-      if(btnPreencherAnosFora.checked == true){
-        data = preencherTemporadasFaltantes(data);
-      }
-      renderSelectedChart();
-  }
+  async function atualizarData() {
+    try {
+      const response = await fetch("/api/individual?time=" + selectTime.value);
+      dataOriginal = await response.json();
 
-  function renderSelectedChart() {
-    const type = selectGrafico.value;
-    if (type === 'bar') renderBarChart(chartDiv, data, config);
-    else if (type === 'line') renderLineChart(chartDiv, data, config);
-    else if (type === 'pie') renderPieChart(chartDiv, data, config);
-    else if (type === 'table') renderTableView(chartDiv, data);
+      if (btnPreencherAnosFora.checked) {
+        dataOriginal = preencherTemporadasFaltantes(dataOriginal);
+      }
+
+      // Resetar filtros
+      filtrosAtivos.barChart = null;
+      filtrosAtivos.lineChart = null;
+      filtrosAtivos.pieChart = null;
+
+      atualizarTodosGraficos(dataOriginal);
+    } catch (err) {
+      console.error("Erro ao buscar dados do time:", err);
+    }
   }
 
   function preencherTemporadasFaltantes(lista) {
-      if (lista.length === 0) return [];
+    const temporadasExistentes = lista.map((item) => item.temporada);
+    const temporadaMin = 2003;
+    const temporadaMax = 2024;
 
-      const temporadasExistentes = lista.map(item => item.temporada);
+    const preenchida = [];
 
-      const temporadaMin = 2003;
-      const temporadaMax = 2024;
-
-      const listaPreenchida = [];
-
-      for (let ano = temporadaMin; ano <= temporadaMax; ano++) {
-        const existente = lista.find(item => item.temporada === ano);
-        if (existente) {
-          listaPreenchida.push(existente);
-        } else {
-          listaPreenchida.push({
-            time_nome: '--',
-            temporada: ano,
-            jogos: 0,
-            total_pontos: 0,
-            vitorias: 0,
-            empates: 0,
-            derrotas: 0,
-            gols_marcados: 0,
-            gols_sofridos: 0,
-            saldo_gols: 0,
-          });
-        }
+    for (let ano = temporadaMin; ano <= temporadaMax; ano++) {
+      const existente = lista.find((item) => item.temporada === ano);
+      if (existente) {
+        preenchida.push(existente);
+      } else {
+        preenchida.push({
+          time_nome: selectTime.value,
+          temporada: ano,
+          jogos: 0,
+          total_pontos: 0,
+          vitorias: 0,
+          empates: 0,
+          derrotas: 0,
+          gols_marcados: 0,
+          gols_sofridos: 0,
+          saldo_gols: 0,
+        });
       }
-      return listaPreenchida;
+    }
+
+    return preenchida;
   }
 
-  selectGrafico.addEventListener('change', renderSelectedChart);
-  selectTime.addEventListener('change', atualizarData);
-  btnPreencherAnosFora.addEventListener('change', atualizarData);
+  function atualizarTodosGraficos(dados) {
+    renderBarChart(chartDivs.barChart, dados, {
+      ...config,
+      onSelection: (selecionados) => atualizarFiltro("barChart", selecionados),
+    });
 
-  fetchData();
+    renderLineChart(chartDivs.lineChart, dados, {
+      ...config,
+      onSelection: (selecionados) => atualizarFiltro("lineChart", selecionados),
+    });
+
+    renderPieChart(chartDivs.pieChart, dados, {
+      ...config,
+      onSelection: (selecionados) => atualizarFiltro("pieChart", selecionados),
+    });
+
+    renderTableView(chartDivs.tableView, dados);
+  }
+
+  function atualizarFiltro(grafico, selecionados) {
+    filtrosAtivos[grafico] = selecionados?.length > 0 ? selecionados : null;
+    const dadosFiltrados = combinarFiltros();
+    atualizarTodosGraficos(dadosFiltrados);
+  }
+
+  function combinarFiltros() {
+    let resultado = [...dataOriginal];
+    for (const key in filtrosAtivos) {
+      if (filtrosAtivos[key]) {
+        resultado = resultado.filter((item) => filtrosAtivos[key].some((f) => compararItem(item, f)));
+      }
+    }
+    return resultado;
+  }
+
+  function compararItem(a, b) {
+    return a.temporada === b.temporada;
+  }
+
+  selectTime.addEventListener("change", atualizarData);
+  btnPreencherAnosFora.addEventListener("change", atualizarData);
+
+  fetchTimes();
 });
